@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHEFBOT Culinary Operations & CDC Command | Centara Reserve Krabi</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel Standalone for JSX compilation in browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-[#0B0F17] text-slate-100 font-sans antialiased selection:bg-[#D4AF37] selection:text-slate-950">
+    <div id="root"></div>
+
+    <!-- MAIN APP SCRIPT -->
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        const INITIAL_DATA = {
+          meta: {
+            property: 'Centara Reserve Krabi',
+            owner: 'Chef Chris Jirawat Boonsit',
+            position: 'Chef De Cuisine (CDC)',
+            startDate: '1 December 2026',
+            version: 'Master Plan V3.0 & Onboarding V1.0',
+            lastSaved: new Date().toISOString(),
+          },
+          leadershipStatement:
+            '“My first priority is to understand the people, the operation and the expectations of our guests and management. I will build on what already works, address risks with urgency, and establish clear standards, accountability and development opportunities across all three outlets. My goal is to create a culinary team that delivers consistent quality, safe operations, memorable experiences and sustainable business results.”',
+          firstMeetingQuestions: [
+            { topic: 'Success Definition', question: 'What does excellent performance look like at 30, 60 and 90 days? Which outcomes matter most?' },
+            { topic: 'Authority Matrix', question: 'Which decisions can CDC approve independently? What requires Executive Chef/GM/Finance/HR approval?' },
+            { topic: 'People & Stewarding', question: 'Who are the Outlet leaders? What are strengths, vacancies, retention or performance concerns?' },
+            { topic: 'Commercial Targets', question: 'What are revenue, food cost, labour, budget and guest satisfaction targets by Outlet?' },
+            { topic: 'Operations & Peaks', question: 'What are the biggest recurring issues, service peaks, events and maintenance constraints?' },
+            { topic: 'Guest Segments', question: 'What are the key guest segments, VIP expectations and known pain points?' },
+            { topic: 'Culinary Recognition', question: 'Which awards/guide are strategic priorities and what is the approved timeline/resource?' },
+            { topic: 'Reporting Rhythm', question: 'What report format, meeting cadence and escalation channel does management expect?' },
+          ],
+          outlets: [
+            { id: 'salt', name: 'Salt Society', concept: 'Contemporary Coastal / Mediterranean Beach Dining', seats: '~112 seats', hours: 'Mon–Sat 12:00–22:30 | Sun 12:30–15:30 & 18:00–22:30', lastOrder: '22:30', productionNote: 'Dedicated Outlet Line (Pizza / Oven / Grill / Seafood / Cold)', status: 'CONFIRMED' },
+            { id: 'ember', name: 'Ember', concept: 'Premium Fire-led Dining / Wood Fire Grill', seats: '141 seats (109 Outdoor + 32 Indoor)', hours: 'Daily 18:00–22:30', lastOrder: '22:30', productionNote: 'Primary Culinary Recognition Candidate (Michelin / Awards Track)', status: 'CONFIRMED' },
+            { id: 'monsoon', name: 'Monsoon', concept: 'Asian-inspired Cocktail Bar & Small Bites', seats: 'รอยืนยันจำนวนที่นั่ง (TO VERIFY)', hours: 'Daily 13:00–24:00', lastOrder: 'Food Last Order 22:30 (Bar until 24:00)', productionNote: 'Food produced by Ember team (Requires dedicated owner & transfer SOP)', status: 'PROVISIONAL' },
+          ],
+          kpis: [
+            { id: 'kpi-1', pillar: 'Financial', name: 'Food Cost %', target: 'Approved Budget', actual: '28.5%', status: 'Baseline Pending', rule: 'Confirm accounting definition & transfer rules with Finance' },
+            { id: 'kpi-2', pillar: 'Financial', name: 'Inventory Variance', target: 'Approved Tolerance', actual: '0.4%', status: 'Baseline Pending', rule: 'Actual stock vs system/book stock each count' },
+            { id: 'kpi-3', pillar: 'Food Safety', name: 'Critical Unresolved Findings', target: '0', actual: '0', status: 'Mandatory', rule: 'Zero unresolved; immediate containment & escalation' },
+            { id: 'kpi-4', pillar: 'Food Safety', name: 'Required Records Compliance', target: '100%', actual: '94%', status: 'Mandatory', rule: 'Temp, receiving, cooling, cleaning & calibration logs' },
+          ],
+          factBase: [
+            { id: 'fb-1', topic: 'CDC Scope', position: 'ดูแล Culinary Operations ทั้ง Salt Society, Ember และ Monsoon', status: 'CONFIRMED', action: 'Confirm authority matrix on Day 1' },
+            { id: 'fb-2', topic: 'Total Team', position: '13 คน รวม CDC; Production team 12 คน', status: 'CONFIRMED', action: 'Request Employee Master List & skill grades' },
+          ],
+          workstreams: [
+            {
+              id: 'ws-01',
+              code: '01',
+              title: 'Management & Onboarding',
+              tasks: [
+                { id: 't-101', text: 'Management Alignment Meeting (Role, Reporting Line, Authority)', completed: false },
+                { id: 't-102', text: 'Job Description & Delegated Authority Matrix', completed: false },
+              ]
+            }
+          ],
+          capas: [
+            { id: 'CRK-2026-001', date: '2026-12-01', outlet: 'Shared', category: 'People', finding: 'Stewarding headcount inclusion within the 13-person culinary team is unverified.', containment: 'Confirm daily shift coverage.', rootCause: 'HR summary combined total headcount.', action: 'Obtain verified Employee Master List.', owner: 'Chef Chris (CDC)', deadline: '2026-12-02', priority: 'High', status: 'Open', verifiedBy: '' }
+          ]
+        };
+
+        function App() {
+          const [data, setData] = useState(() => {
+            try {
+              const saved = localStorage.getItem('chefbot_crk_luxury_web_v1');
+              if (saved) return JSON.parse(saved);
+            } catch (e) {}
+            return INITIAL_DATA;
+          });
+          const [activeTab, setActiveTab] = useState('overview');
+          const [toast, setToast] = useState('CHEFBOT Command Loaded Successfully');
+
+          useEffect(() => {
+            setTimeout(() => setToast(null), 3000);
+          }, []);
+
+          return (
+            <div className="min-h-screen bg-[#0B0F17] text-slate-100 p-6 max-w-7xl mx-auto">
+              {toast && (
+                <div className="fixed bottom-5 right-5 z-50 bg-[#131926] text-white border border-[#D4AF37] px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3">
+                  <span className="text-sm font-medium">{toast}</span>
+                </div>
+              )}
+              <header className="bg-[#131926] rounded-2xl border border-slate-800 p-6 shadow-xl mb-6 flex justify-between items-center">
+                <div>
+                  <span className="text-xs font-bold text-[#D4AF37] uppercase tracking-widest">Centara Reserve Krabi</span>
+                  <h1 className="text-2xl font-bold text-white mt-1">CHEFBOT Culinary Operations & CDC Command</h1>
+                  <p className="text-xs text-slate-400 mt-1">Chef Chris Jirawat Boonsit | Chef De Cuisine (CDC)</p>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => setActiveTab('overview')} className={`px-4 py-2 rounded-xl text-xs font-bold ${activeTab === 'overview' ? 'bg-[#D4AF37] text-slate-950' : 'bg-slate-800 text-slate-300'}`}>Overview</button>
+                  <button onClick={() => setActiveTab('capa')} className={`px-4 py-2 rounded-xl text-xs font-bold ${activeTab === 'capa' ? 'bg-[#D4AF37] text-slate-950' : 'bg-slate-800 text-slate-300'}`}>CAPA ({data.capas.length})</button>
+                </div>
+              </header>
+
+              {activeTab === 'overview' && (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {data.outlets.map(o => (
+                      <div key={o.id} className="bg-[#131926] p-5 rounded-2xl border border-slate-800">
+                        <h3 className="text-lg font-bold text-white">{o.name}</h3>
+                        <p className="text-xs text-[#D4AF37] mt-1">{o.seats}</p>
+                        <p className="text-xs text-slate-300 mt-2">{o.concept}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="bg-[#131926] p-6 rounded-2xl border border-slate-800">
+                    <h3 className="text-base font-bold text-white mb-2">30-Second Leadership Statement</h3>
+                    <p className="text-sm italic text-slate-300">{data.leadershipStatement}</p>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'capa' && (
+                <div className="bg-[#131926] p-6 rounded-2xl border border-slate-800">
+                  <h3 className="text-base font-bold text-white mb-4">CAPA & Action Tracker</h3>
+                  <div className="space-y-3">
+                    {data.capas.map(c => (
+                      <div key={c.id} className="bg-[#0B0F17] p-4 rounded-xl border border-slate-800 text-xs space-y-1">
+                        <div className="flex justify-between font-bold text-[#D4AF37]">
+                          <span>{c.id} ({c.outlet})</span>
+                          <span className="text-rose-400">{c.status}</span>
+                        </div>
+                        <p className="text-white font-semibold">{c.finding}</p>
+                        <p className="text-slate-400">Action: {c.action} | Owner: {c.owner}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
